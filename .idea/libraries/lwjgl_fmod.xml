@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="lwjgl-fmod">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-fmod/lwjgl-fmod.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-fmod/lwjgl-fmod-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-fmod/lwjgl-fmod-javadoc.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

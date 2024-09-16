@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="LWJGLGame" default="default" basedir=".">
+    <description>Builds, tests, and runs the project LWJGLGame.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <target name="dist" depends="compile" description="generate the distribution">
+        <jar jarfile="dist/LWJGLGame.jar" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="main.Engine"/>
+            </manifest>
+            <!-- Include shaders directory -->
+            <fileset dir="." includes="shaders/**"/>
+        </jar>
+    </target>
+</project>

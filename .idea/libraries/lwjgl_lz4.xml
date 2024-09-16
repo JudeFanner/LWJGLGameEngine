@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="lwjgl-lz4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-freebsd.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-linux-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-linux-ppc64le.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-windows-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-windows.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-windows-x86.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-linux.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-linux-riscv64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-macos-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-linux-arm32.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-lz4/lwjgl-lz4-natives-macos.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

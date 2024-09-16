@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="lwjgl-par">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-linux-arm32.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-macos-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-macos.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-windows.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-linux-riscv64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-freebsd.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-windows-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-linux-ppc64le.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-windows-x86.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-linux-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-par/lwjgl-par-natives-linux.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

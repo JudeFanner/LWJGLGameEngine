@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="lwjgl-msdfgen">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-linux-arm32.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-macos-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-linux.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-linux-riscv64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-windows.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-windows-x86.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-freebsd.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-linux-ppc64le.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-macos.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-linux-arm64.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/lwjgl/lwjgl-msdfgen/lwjgl-msdfgen-natives-windows-arm64.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

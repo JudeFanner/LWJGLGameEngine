@@ -35,7 +35,7 @@ public class InputHandler {
         });
     }
 
-    public void processInput() {
+    public void processInput(float deltaTime) {
         Vector3f moveDirection = new Vector3f(0, 0, 0);
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -56,7 +56,7 @@ public class InputHandler {
 
         // Only call move if there's actual input
         if (moveDirection.lengthSquared() > 0) {
-            player.move(moveDirection);
+            player.move(moveDirection, deltaTime);
         } else {
             // If no input, set horizontal velocity to zero
             Vector3f currentVelocity = player.getVelocity();

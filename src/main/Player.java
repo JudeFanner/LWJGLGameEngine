@@ -3,51 +3,113 @@ package main;
 import org.joml.Vector3f;
 
 public class Player {
-    private Vector3f position;
-    private Vector3f velocity;
-    private float moveSpeed;
-    private float jumpStrength;
-    private float gravity;
-    private boolean isGrounded;
+    Vector3f position;
+    Vector3f velocity;
+    float moveSpeed;
+    float sprintSpeed;
+    float jumpStrength;
+    float gravity;
+    boolean isGrounded;
+    boolean isSprinting;
+    boolean isCheatFlying;
+    float airAcceleration;
+    float groundAcceleration;
+    float friction;
+    float brakingDeceleration;
 
     public Player(Vector3f startPosition) {
         this.position = new Vector3f(startPosition);
         this.velocity = new Vector3f(0, 0, 0);
         this.moveSpeed = 5.0f;
+        this.sprintSpeed = 7.5f;
         this.jumpStrength = 5.0f;
         this.gravity = 9.8f;
         this.isGrounded = false;
+
+        this.isSprinting = false;
+        this.isCheatFlying = false;
+        this.airAcceleration = 10.0f;
+        this.groundAcceleration = 10.0f;
+        this.friction = 2.0f;
+        this.brakingDeceleration = 10.0f;
     }
 
-    public void update(float deltaTime) {
-        velocity.y -= gravity * deltaTime;
+    void update(float deltaTime) {
+        if (!isCheatFlying) {
+            applyGravity(deltaTime);
+        }
+
+        applyFriction(deltaTime);
+
         position.add(new Vector3f(velocity).mul(deltaTime));
 
-        if (position.y <= 0) {
+        if (position.y <= 0 && !isCheatFlying) {
             position.y = 0;
             isGrounded = true;
             velocity.y = 0;
         } else {
             isGrounded = false;
         }
+    }
 
-//        System.out.println("Player update - Position: " + position + ", " +
-//                "Velocity: " + velocity + ", Grounded: " + isGrounded);
+    void applyGravity(float deltaTime) {
+        velocity.y -= gravity * deltaTime;
+    }
+
+    void applyFriction(float deltaTime) {
+        if (isGrounded) {
+            float speed = velocity.length();
+            if (speed > 0) {
+                float drop = speed * friction * deltaTime;
+                float newSpeed = Math.max(0, speed - drop);
+                velocity.mul(newSpeed / speed);
+            }
+        }
     }
 
     public void jump() {
         if (isGrounded) {
             velocity.y = jumpStrength;
-            //System.out.println("Player jumped - New velocity: " + velocity);
         }
     }
 
-    public void move(Vector3f direction) {
-        Vector3f movement = new Vector3f(direction).normalize().mul(moveSpeed);
-        velocity.x = movement.x;
-        velocity.z = movement.z;
-        //System.out.println("Player move - Direction: " + direction + ", New
-        // velocity: " + velocity);
+    void move(Vector3f direction, float deltaTime) {
+        float acceleration = isGrounded ? groundAcceleration : airAcceleration;
+        float maxSpeed = isSprinting ? sprintSpeed : moveSpeed;
+
+        if (isCheatFlying) {
+            maxSpeed *= 1.5f;
+        }
+
+        // Normalize the direction vector
+        direction.normalize();
+
+        // Only affect horizontal movement (x and z)
+        Vector3f horizontalVelocity = new Vector3f(velocity.x, 0, velocity.z);
+
+        // Calculate the current speed in the movement direction
+        float currentSpeed = horizontalVelocity.dot(direction);
+
+        // Calculate the amount of acceleration to apply
+        float accelerationThisFrame = acceleration * deltaTime;
+        float newSpeed = Math.min(currentSpeed + accelerationThisFrame, maxSpeed);
+
+        // Apply the new speed in the movement direction
+        horizontalVelocity.add(new Vector3f(direction).mul(newSpeed - currentSpeed));
+
+        // Update the main velocity vector
+        velocity.x = horizontalVelocity.x;
+        velocity.z = horizontalVelocity.z;
+
+        if (!isCheatFlying) {
+            float speedLimit = 20.0f; // Adjust this value as needed
+            float horizontalSpeedSquared = velocity.x * velocity.x + velocity.z * velocity.z;
+            if (horizontalSpeedSquared > speedLimit * speedLimit) {
+                float scale = speedLimit / (float)Math.sqrt(horizontalSpeedSquared);
+                velocity.x *= scale;
+                velocity.z *= scale;
+            }
+        }
     }
 
     public Vector3f getPosition() {

@@ -29,6 +29,15 @@ public class Engine {
     private InputHandler inputHandler;
     private CameraHandler cameraHandler;
 
+    Vector3f lightPos = new Vector3f(5.0f, 5.0f, 5.0f);
+    Vector3f lightColor = new Vector3f(1.0f, 1.0f, 1.0f);
+    Vector3f objectColor = new Vector3f(0.5f, 0.5f, 0.5f);
+
+    private boolean debugMode = false;
+    private float debugTimer = 0f;
+    private int debugStep = 0;
+    private final float DEBUG_DURATION = 2.0f;
+
     private void init() {
         // set up an error callback
         errorCallback = GLFWErrorCallback.createPrint(System.err);
@@ -119,17 +128,8 @@ public class Engine {
             float deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
-            if (debugMode) {
-                runDebugSequence(deltaTime);
-            } else {
-                // Normal input processing
-                inputHandler.processInput();
-            }
-
-            // Update game state
+            inputHandler.processInput(deltaTime);
             player.update(deltaTime);
-
-            // Update camera
             Vector3f playerPosition = player.getPosition();
             cameraHandler.update(playerPosition);
 
@@ -142,43 +142,6 @@ public class Engine {
                 glfwSetWindowShouldClose(window, true);
             }
         }
-    }
-
-    private boolean debugMode = false;
-    private float debugTimer = 0f;
-    private int debugStep = 0;
-    private final float DEBUG_DURATION = 2.0f;
-
-    private void runDebugSequence(float deltaTime) {
-        debugTimer += deltaTime;
-
-        int step = (int) (debugTimer / 0.5f);
-        if (step != debugStep) {
-            debugStep = step;
-            Vector3f moveDirection = new Vector3f();
-
-            switch (debugStep % 5) {
-                case 0: moveDirection.set(1, 0, 0); break;  // Move right
-                case 1: moveDirection.set(-1, 0, 0); break; // Move left
-                case 2: moveDirection.set(0, 0, -1); break; // Move forward
-                case 3: moveDirection.set(0, 0, 1); break;  // Move backward
-                case 4: player.jump(); break;               // Jump
-            }
-
-            if (debugStep % 5 != 4) { // If not jumping
-                player.move(moveDirection);
-            }
-
-            //System.out.println("Debug step " + debugStep + ": " +
-            // (debugStep % 5 == 4 ? "Jump" : "Move " + moveDirection));
-        }
-
-        //System.out.println("Debug timer: " + debugTimer);
-        //System.out.println("Player position: " + player.getPosition());
-        //System.out.println("Player velocity: " + player.getVelocity());
-        //System.out.println("Camera position: " + cameraHandler.getCameraPos(player.getPosition()));
-        //System.out.println("Camera front: " + cameraHandler.getCameraFront());
-        //System.out.println("---");
     }
 
     private void render() {
@@ -217,14 +180,7 @@ public class Engine {
                 aspect, 0.1f, 100.0f);
         int projectionLoc = glGetUniformLocation(shaderHandler.getShaderProgram(), "projection");
         glUniformMatrix4fv(projectionLoc, false, projection.get(new float[16]));
-
-        //System.out.println("Aspect Ratio: " + aspect);
     }
-
-    Vector3f lightPos = new Vector3f(5.0f, 5.0f, 5.0f);
-    Vector3f lightColor = new Vector3f(1.0f, 1.0f, 1.0f);
-
-    Vector3f objectColor = new Vector3f(0.5f, 0.5f, 0.5f);
 
     public void run() {
         try {

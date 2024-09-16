@@ -19,8 +19,8 @@ public class Engine {
     private int height = 600;
 
     private Player player;
-    private float deltaTime = 0.0f;
-    private float lastFrame = 0.0f;
+    private final float deltaTime = 0.0f;
+    private final float lastFrame = 0.0f;
     private MeshHandler meshHandler;
 
     private GLFWErrorCallback errorCallback;

@@ -4,15 +4,31 @@ out vec4 FragColor;
 in vec3 Normal;
 in vec3 FragPos;
 
+
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
 
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
+
+
 void main()
 {
+    // Checkerboard pattern
+    float scale = 10.0; // Adjust this to change the size of the checkerboard squares
+    vec2 checkPos = floor(Normal.yz * scale);
+    float pattern = mod(checkPos.x + checkPos.y, 2.0);
+
+    // Choose colors for the checkerboard
+    vec3 color1 = objectColor;
+    vec3 color2 = vec3(1.0) - objectColor; // Inverse of objectColor
+    vec3 checkerColor = mix(color1, color2, pattern);
+
     // Ambient
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.2;
     vec3 ambient = ambientStrength * lightColor;
 
     // Diffuse
@@ -28,6 +44,12 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * objectColor;
+    vec3 result = (ambient + diffuse + specular) * checkerColor;
+
+    float distance = length(FragPos - viewPos);
+    float fogFactor = clamp((fogEnd - distance) / (fogEnd - fogStart), 0.0, 1.0);
+
+    result = mix(fogColor, result, fogFactor);
+
     FragColor = vec4(result, 1.0);
 }

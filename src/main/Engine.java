@@ -1,7 +1,9 @@
 package main;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -33,10 +35,13 @@ public class Engine {
     Vector3f lightColor = new Vector3f(1.0f, 1.0f, 1.0f);
     Vector3f objectColor = new Vector3f(0.5f, 0.5f, 0.5f);
 
-    private boolean debugMode = false;
+    Vector4f skyColor = new Vector4f(0.6f, 0.650f, 1.0f, 1.0f);
+
+    private boolean debugMode = false; // set to true to enable debug mode
     private float debugTimer = 0f;
     private int debugStep = 0;
     private final float DEBUG_DURATION = 2.0f;
+    private final float DEBUG_STEP_DURATION = 0.5f;
 
     private void init() {
         // set up an error callback
@@ -80,12 +85,10 @@ public class Engine {
         glfwSwapInterval(1); // enable v-sync
         glfwShowWindow(window);
 
-        // this line is critical for lwjgl's interoperation with glfw's
-        // opengl context, or any context that is managed externally.
         GL.createCapabilities();
 
         // set the clear color
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
 
         // enable depth testing
         glEnable(GL_DEPTH_TEST);
@@ -128,8 +131,11 @@ public class Engine {
             float deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
-            inputHandler.processInput(deltaTime);
+            Vector3f wishDir = inputHandler.processInput(deltaTime, shaderHandler);
+
+            player.move(wishDir, deltaTime);
             player.update(deltaTime);
+
             Vector3f playerPosition = player.getPosition();
             cameraHandler.update(playerPosition);
 
@@ -137,10 +143,6 @@ public class Engine {
 
             glfwSwapBuffers(window);
             glfwPollEvents();
-
-            if (debugMode && debugTimer >= DEBUG_DURATION) {
-                glfwSetWindowShouldClose(window, true);
-            }
         }
     }
 
@@ -154,7 +156,9 @@ public class Engine {
         int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, false, view.get(new float[16]));
 
-        //System.out.println("View Matrix: " + view);
+        System.out.println("Player Position: " + player.getPosition());
+        System.out.println("Camera Position: " + cameraHandler.getCameraPos(player.getPosition()));
+        System.out.println("View Matrix: " + view);
 
         // update projection matrix
         updateProjectionMatrix();
@@ -163,15 +167,24 @@ public class Engine {
         Vector3f lightPos = new Vector3f(5.0f, 5.0f, 5.0f);
         Vector3f lightColor = new Vector3f(1.0f, 1.0f, 1.0f);
         Vector3f objectColor = new Vector3f(1.0f, 0.5f, 0.31f);
+
+        Vector3f fogColor = new Vector3f(skyColor.x, skyColor.y, skyColor.z);
+        float fogStart = 5.0f;
+        float fogEnd = 20.0f;
+
+
         shaderHandler.setLightUniforms(
                 lightPos,
                 cameraHandler.getCameraPos(player.getPosition()),
                 lightColor,
                 objectColor
         );
+        shaderHandler.setFogUniforms(fogColor, fogStart, fogEnd);
 
-        // Render meshes
+        // render meshes
         meshHandler.renderMeshes(shaderHandler);
+
+
     }
 
     private void updateProjectionMatrix() {
@@ -199,6 +212,32 @@ public class Engine {
                 errorCallback.free();
             }
         }
+    }
+
+    private void runDebugSequence(float deltaTime, Vector3f wishDir) {
+        if (debugTimer < DEBUG_STEP_DURATION) {
+            // Move forward
+            wishDir.z = -1;
+        } else if (debugTimer < 2 * DEBUG_STEP_DURATION) {
+            // Move backward
+            wishDir.z = 1;
+        } else if (debugTimer < 3 * DEBUG_STEP_DURATION) {
+            // Move left
+            wishDir.x = -1;
+        } else if (debugTimer < 4 * DEBUG_STEP_DURATION) {
+            // Move right
+            wishDir.x = 1;
+        } else if (debugTimer < DEBUG_DURATION) {
+            // Jump
+            player.jump();
+        }
+
+        // Normalize wishDir to ensure consistent movement speed
+        if (wishDir.lengthSquared() > 0) {
+            wishDir.normalize();
+        }
+
+        System.out.println("Debug Step: " + debugStep + ", Time: " + debugTimer + ", WishDir: " + wishDir);
     }
 
     public static void main(String[] args) {

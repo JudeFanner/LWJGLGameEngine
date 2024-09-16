@@ -1,5 +1,6 @@
 package main;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -85,5 +86,9 @@ public class CameraHandler {
 
     public Vector3f getCameraFront() {
         return cameraFront;
+    }
+
+    public Matrix3f getRotationMatrix() {
+        return new Matrix3f().rotateY(yaw).rotateX(pitch);
     }
 }

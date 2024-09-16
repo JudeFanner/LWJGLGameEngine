@@ -132,9 +132,6 @@ public class ShaderHandler {
         int success = glGetShaderi(shader, GL_COMPILE_STATUS);
         if (success == GL_FALSE) {
             int len = glGetShaderi(shader, GL_INFO_LOG_LENGTH);
-            //System.out.println("ERROR::SHADER_COMPILATION_ERROR of type: "
-            // + (type == GL_VERTEX_SHADER ? "VERTEX" : "FRAGMENT"));
-            //System.out.println(glGetShaderInfoLog(shader, len));
             throw new IllegalStateException("Shader compilation failed");
         }
 
@@ -167,9 +164,9 @@ public class ShaderHandler {
         int location = glGetUniformLocation(shaderProgram, name);
         if (location != -1) {
             glUniformMatrix4fv(location, false, value.get(new float[16]));
-            //System.out.println("Set uniform '" + name + "' at location: " + location);
         } else {
-            //System.err.println("Uniform '" + name + "' not found in shader program.");
+            throw new IllegalStateException((name + ": Uniform location is " +
+                    "invalid"));
         }
     }
 
@@ -178,5 +175,19 @@ public class ShaderHandler {
         glUniform3f(glGetUniformLocation(shaderProgram, "viewPos"), viewPos.x, viewPos.y, viewPos.z);
         glUniform3f(glGetUniformLocation(shaderProgram, "lightColor"), lightColor.x, lightColor.y, lightColor.z);
         glUniform3f(glGetUniformLocation(shaderProgram, "objectColor"), objectColor.x, objectColor.y, objectColor.z);
+    }
+
+    public void setFogUniforms(Vector3f fogColor,
+                               float fogStart,
+                               float fogEnd)
+    {
+        glUniform3f(glGetUniformLocation(shaderProgram, "fogColor"),
+                fogColor.x,
+                fogColor.y,
+                fogColor.z);
+        glUniform1f(glGetUniformLocation(shaderProgram, "fogStart"), fogStart);
+        glUniform1f(glGetUniformLocation(shaderProgram, "fogEnd"), fogEnd);
+
+
     }
 }

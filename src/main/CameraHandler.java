@@ -65,15 +65,11 @@ public class CameraHandler {
     }
 
     public void update(Vector3f playerPosition) {
-        // Update cameraFront based on yaw and pitch
         cameraFront.x = (float) (Math.cos(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         cameraFront.y = (float) Math.sin(Math.toRadians(pitch));
         cameraFront.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
         cameraFront.normalize();
 
-//        System.out.println("Camera Front: " + cameraFront);
-//        System.out.println("Player Position: " + playerPosition);
-//        System.out.println("Camera Position: " + getCameraPos(playerPosition));
     }
 
     public Vector3f getCameraPos(Vector3f playerPosition) {

@@ -31,18 +31,15 @@ public class ShaderHandler {
 
     public void useShaderProgram() {
         if (shaderProgram <= 0) {
-            //System.err.println("Invalid shader program ID: " + shaderProgram);
             return;
         }
         glUseProgram(shaderProgram);
-        //System.out.println("Using shader program: " + shaderProgram);
     }
 
     public void printActiveUniforms() {
         IntBuffer numUniforms = BufferUtils.createIntBuffer(1);
         glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, numUniforms);
         int uniformCount = numUniforms.get(0);
-        //System.out.println("Number of active uniforms: " + uniformCount);
 
         IntBuffer size = BufferUtils.createIntBuffer(1);
         IntBuffer type = BufferUtils.createIntBuffer(1);
@@ -50,13 +47,11 @@ public class ShaderHandler {
         for (int i = 0; i < uniformCount; i++) {
             String name = glGetActiveUniform(shaderProgram, i, size, type);
             int location = glGetUniformLocation(shaderProgram, name);
-            //System.out.println("Uniform #" + i + " Name: " + name + " Type: " + type.get(0) + " Size: " + size.get(0) + " Location: " + location);
         }
     }
 
     public void reloadShaders() {
         try {
-            //System.out.println("reloading shaders...");
             int newProgram = createShaderProgram();
             glDeleteProgram(shaderProgram);
             shaderProgram = newProgram;
@@ -64,9 +59,7 @@ public class ShaderHandler {
             printActiveUniforms();
 
             useShaderProgram();
-            //System.out.println("shaders reloaded successfully.");
         } catch (Exception e) {
-            //System.err.println("failed to reload shaders: " + e.getMessage());
         }
     }
 
@@ -76,7 +69,6 @@ public class ShaderHandler {
 
         int program = glCreateProgram();
         if (program == 0) {
-            //System.err.println("Failed to create shader program");
             return 0;
         }
 
@@ -92,7 +84,6 @@ public class ShaderHandler {
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
-        //System.out.println("Created shader program with ID: " + program);
         return program;
     }
 
@@ -113,8 +104,6 @@ public class ShaderHandler {
         if (success.get(0) == GL_FALSE) {
             int len = glGetProgrami(program, GL_INFO_LOG_LENGTH);
             String log = glGetProgramInfoLog(program, len);
-            //System.err.println("ERROR::PROGRAM_LINKING_ERROR");
-            //System.err.println(log);
             return false;
         }
         return true;
@@ -122,8 +111,6 @@ public class ShaderHandler {
 
     private int compileShader(int type, String fileName) {
         String source = loadShaderSource(fileName);
-        //System.out.println("Compiling " + (type == GL_VERTEX_SHADER ? "vertex" : "fragment") + " shader:");
-        //System.out.println(source);
 
         int shader = glCreateShader(type);
         glShaderSource(shader, source);
@@ -143,8 +130,6 @@ public class ShaderHandler {
             Path path = Paths.get("shaders", fileName);
             byte[] encoded = Files.readAllBytes(path);
             String source = new String(encoded, StandardCharsets.UTF_8);
-            //System.out.println("Loaded shader source for " + fileName + ":");
-            //System.out.println(source);
             return source;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load shader file: " + fileName, e);
@@ -155,8 +140,6 @@ public class ShaderHandler {
         int success = glGetShaderi(shader, GL_COMPILE_STATUS);
         if (success == GL_FALSE) {
             int len = glGetShaderi(shader, GL_INFO_LOG_LENGTH);
-            //System.out.println("ERROR::SHADER_COMPILATION_ERROR of type: " + type);
-            //System.out.println(glGetShaderInfoLog(shader, len));
         }
     }
 

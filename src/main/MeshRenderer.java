@@ -44,17 +44,12 @@ public class MeshRenderer {
     }
 
     public void update(float deltaTime) {
-        // update the model matrix based on position, rotation, and scale
         modelMatrix.identity()
                 .translate(position)
                 .rotateX((float) Math.toRadians(rotation.x))
                 .rotateY((float) Math.toRadians(rotation.y))
                 .rotateZ((float) Math.toRadians(rotation.z))
                 .scale(scale);
-
-        // you can add other update logic here, such as animations
-        // for example:
-        // rotation.y += 45 * deltaTime; // rotate 45 degrees per second around y-axis
     }
 
     public void render(int shaderProgram) {

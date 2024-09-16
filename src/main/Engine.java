@@ -216,28 +216,22 @@ public class Engine {
 
     private void runDebugSequence(float deltaTime, Vector3f wishDir) {
         if (debugTimer < DEBUG_STEP_DURATION) {
-            // Move forward
             wishDir.z = -1;
         } else if (debugTimer < 2 * DEBUG_STEP_DURATION) {
-            // Move backward
             wishDir.z = 1;
         } else if (debugTimer < 3 * DEBUG_STEP_DURATION) {
-            // Move left
             wishDir.x = -1;
         } else if (debugTimer < 4 * DEBUG_STEP_DURATION) {
-            // Move right
             wishDir.x = 1;
         } else if (debugTimer < DEBUG_DURATION) {
-            // Jump
             player.jump();
         }
 
-        // Normalize wishDir to ensure consistent movement speed
         if (wishDir.lengthSquared() > 0) {
             wishDir.normalize();
         }
 
-        System.out.println("Debug Step: " + debugStep + ", Time: " + debugTimer + ", WishDir: " + wishDir);
+        System.out.println("debug Step: " + debugStep + ", time: " + debugTimer + ", wishDir: " + wishDir);
     }
 
     public static void main(String[] args) {

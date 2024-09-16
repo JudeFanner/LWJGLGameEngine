@@ -29,7 +29,7 @@ public class Mesh {
             vaoId = glGenVertexArrays();
             glBindVertexArray(vaoId);
 
-            // Position VBO
+            // position VBO
             int vboId = glGenBuffers();
             vboIdList.add(vboId);
             posBuffer = MemoryUtil.memAllocFloat(positions.length);
@@ -39,7 +39,7 @@ public class Mesh {
             glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
             glEnableVertexAttribArray(0);
 
-            // Texture coordinates VBO
+            // texture coordinates VBO
             vboId = glGenBuffers();
             vboIdList.add(vboId);
             textCoordsBuffer = MemoryUtil.memAllocFloat(textCoords.length);
@@ -49,7 +49,7 @@ public class Mesh {
             glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
             glEnableVertexAttribArray(1);
 
-            // Vertex normals VBO
+            // vertex normals VBO
             vboId = glGenBuffers();
             vboIdList.add(vboId);
             vecNormalsBuffer = MemoryUtil.memAllocFloat(normals.length);
@@ -59,7 +59,7 @@ public class Mesh {
             glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
             glEnableVertexAttribArray(2);
 
-            // Index VBO
+            // index VBO
             vboId = glGenBuffers();
             vboIdList.add(vboId);
             indicesBuffer = MemoryUtil.memAllocInt(indices.length);
@@ -86,26 +86,24 @@ public class Mesh {
     }
 
     public void render() {
-        // Bind to the VAO
+        // bind to the VAO
         glBindVertexArray(getVaoId());
 
-        // Draw the vertices
+        // draw vertices
         glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
 
-        // Restore state
+        // restore state
         glBindVertexArray(0);
     }
 
     public void cleanUp() {
         glDisableVertexAttribArray(0);
 
-        // Delete the VBOs
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         for (int vboId : vboIdList) {
             glDeleteBuffers(vboId);
         }
 
-        // Delete the VAO
         glBindVertexArray(0);
         glDeleteVertexArrays(vaoId);
     }

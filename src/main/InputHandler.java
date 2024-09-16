@@ -44,12 +44,10 @@ public class InputHandler {
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) wishDir.x -= 1;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) wishDir.x += 1;
 
-        // Normalize wishDir if it's not zero
         if (wishDir.lengthSquared() > 0) {
             wishDir.normalize();
         }
 
-        // Rotate wishDir based on camera's orientation
         Vector3f forward = new Vector3f(cameraHandler.getCameraFront()).mul(1, 0, 1).normalize();
         Vector3f right = new Vector3f(forward).cross(0, 1, 0).normalize();
         Vector3f rotatedWishDir = new Vector3f();
@@ -57,24 +55,19 @@ public class InputHandler {
         rotatedWishDir.add(new Vector3f(right).mul(wishDir.x));
         wishDir.set(rotatedWishDir);
 
-        // Handle sprinting
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
             player.setSprinting(true);
         } else {
             player.setSprinting(false);
         }
 
-        // Handle flying (if implemented)
         if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
             player.toggleCheatFlying();
         }
 
-        // Handle jumping
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             player.jump();
         }
-
-        System.out.println("Input processed - Wish direction: " + wishDir);
 
         return wishDir;
     }

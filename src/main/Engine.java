@@ -169,8 +169,8 @@ public class Engine {
         Vector3f objectColor = new Vector3f(1.0f, 0.5f, 0.31f);
 
         Vector3f fogColor = new Vector3f(skyColor.x, skyColor.y, skyColor.z);
-        float fogStart = 5.0f;
-        float fogEnd = 20.0f;
+        float fogStart = 6.0f;
+        float fogEnd = 30.0f;
 
 
         shaderHandler.setLightUniforms(

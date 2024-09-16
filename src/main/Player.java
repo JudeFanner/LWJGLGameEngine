@@ -9,17 +9,20 @@ public class Player {
     private static final Logger LOGGER = Logger.getLogger(Player.class.getName());
 
     // Constants
-    private static final float DEFAULT_MOVE_SPEED = 5.0f;
+    private static final float DEFAULT_MOVE_SPEED = 7.0f;
     private static final float DEFAULT_SPRINT_SPEED = 7.5f;
     private static final float DEFAULT_JUMP_STRENGTH = 5.0f;
     private static final float DEFAULT_GRAVITY = 9.8f;
-    private static final float DEFAULT_AIR_ACCELERATION = 1.0f;
+    private static final float DEFAULT_AIR_ACCELERATION = 10.0f; // Increased for quicker air control
     private static final float DEFAULT_GROUND_ACCELERATION = 10.0f;
-    private static final float DEFAULT_FRICTION = 6.0f;
+    private static final float DEFAULT_FRICTION = 4.0f;
     private static final float CHEAT_FLY_SPEED_MULTIPLIER = 1.5f;
     private static final float SPEED_LIMIT = 20.0f;
     private static final float GROUND_LEVEL = 0f;
-    private static final float EPSILON = 1e-6f;
+    private static final float AIR_SPEED_CAP = 30.0f;
+    private static final float STOP_SPEED = 0.4f;
+    private static final float MAX_VELOCITY = 50.0f;
+    private static final float EPSILON = 0.001f;
 
     // Fields
     private Vector3f position;
@@ -60,20 +63,30 @@ public class Player {
             return;
         }
 
+        // Apply gravity
         if (!isCheatFlying) {
             applyGravity(deltaTime);
         }
 
-        if (isGrounded) {
-            applyFriction(deltaTime);
-        }
-
         updatePosition(deltaTime);
-
-        // Update grounded state
         updateGroundedState();
 
-        LOGGER.log(Level.FINE, "Position after update: {0}, Velocity: {1}", new Object[]{position, velocity});
+        LOGGER.log(Level.FINE, "Update - Position: {0}, Velocity: {1}, Grounded: {2}",
+                new Object[]{position, velocity, isGrounded});
+    }
+
+    private void accelerate(Vector3f wishDir, float wishSpeed, float accel, float deltaTime) {
+        float currentSpeed = velocity.dot(wishDir);
+        float addSpeed = wishSpeed - currentSpeed;
+
+        if (addSpeed <= 0) {
+            return;
+        }
+
+        float accelSpeed = Math.min(addSpeed, accel * deltaTime);
+
+        Vector3f accelDir = new Vector3f(wishDir).mul(accelSpeed);
+        velocity.add(accelDir);
     }
 
     public void move(Vector3f wishDir, float deltaTime) {
@@ -84,20 +97,16 @@ public class Player {
 
         lastWishDir.set(wishDir);
 
-        // If wishDir is zero, we only need to apply gravity and friction
-        if (wishDir.lengthSquared() < EPSILON) {
-            if (!isCheatFlying) {
-                applyGravity(deltaTime);
-            }
-            if (isGrounded) {
-                applyFriction(deltaTime);
-            }
-            return;
+        // Apply friction
+        if (isGrounded) {
+            applyFriction(deltaTime);
         }
 
-        // wishDir is already in world space, no need to transform
-        wishDir.y = 0; // Ensure no vertical component
-        wishDir.normalize();
+        // Normalize wishDir if it's not zero
+        if (wishDir.lengthSquared() > EPSILON) {
+            wishDir.y = 0; // Ensure no vertical component
+            wishDir.normalize();
+        }
 
         float wishSpeed = isSprinting ? sprintSpeed : moveSpeed;
 
@@ -105,15 +114,13 @@ public class Player {
             wishSpeed *= CHEAT_FLY_SPEED_MULTIPLIER;
         }
 
-        if (isGrounded) {
-            accelerate(wishDir, wishSpeed, groundAcceleration, deltaTime);
-        } else {
-            airAccelerate(wishDir, wishSpeed, airAcceleration, deltaTime);
-        }
+        // Always call accelerate, even if wishDir is zero
+        accelerate(wishDir, wishSpeed, isGrounded ? groundAcceleration : airAcceleration, deltaTime);
 
-        limitVelocity(wishSpeed * CHEAT_FLY_SPEED_MULTIPLIER);
+        limitVelocity(MAX_VELOCITY);
 
-        LOGGER.log(Level.FINE, "Velocity after move: {0}", velocity);
+        LOGGER.log(Level.FINE, "Move input - WishDir: {0}, Grounded: {1}, Velocity before: {2}, Velocity after: {3}",
+                new Object[]{wishDir, isGrounded, new Vector3f(velocity), velocity});
     }
 
     private void applyGravity(float deltaTime) {
@@ -155,60 +162,46 @@ public class Player {
     }
 
     private void applyFriction(float deltaTime) {
-        float speed = new Vector3f(velocity.x, 0, velocity.z).length();
-        if (speed > EPSILON) {
-            float drop = speed * friction * deltaTime;
-            float newSpeed = Math.max(0, speed - drop);
-            if (newSpeed > 0) {
-                newSpeed /= speed;
-                velocity.x *= newSpeed;
-                velocity.z *= newSpeed;
-            } else {
-                velocity.x = 0;
-                velocity.z = 0;
-            }
+        float speed = velocity.length();
+
+        if (speed < EPSILON) {
+            return;
+        }
+
+        float drop = 0;
+
+        // Apply ground friction
+        float control = Math.max(speed, STOP_SPEED);
+        drop += control * friction * deltaTime;
+
+        // Scale the velocity
+        float newSpeed = Math.max(0, speed - drop);
+        if (newSpeed != speed) {
+            newSpeed /= speed;
+            velocity.mul(newSpeed);
         }
     }
 
     private void updateGroundedState() {
-        if (position.y <= GROUND_LEVEL && !isCheatFlying) {
+        boolean wasGrounded = isGrounded;
+        isGrounded = position.y <= GROUND_LEVEL && !isCheatFlying;
+
+        if (isGrounded) {
             position.y = GROUND_LEVEL;
-            isGrounded = true;
-            velocity.y = 0;
-        } else {
-            isGrounded = false;
+            if (velocity.y < 0) {
+                velocity.y = 0;
+            }
+        }
+
+        if (isGrounded && !wasGrounded) {
+            LOGGER.log(Level.FINE, "Player landed");
+        } else if (!isGrounded && wasGrounded) {
+            LOGGER.log(Level.FINE, "Player left ground");
         }
     }
 
-    private void accelerate(Vector3f wishDir, float wishSpeed, float accel, float deltaTime) {
-        float currentSpeed = new Vector3f(velocity.x, 0, velocity.z).dot(wishDir);
-        float addSpeed = wishSpeed - currentSpeed;
-
-        if (addSpeed <= 0) {
-            return;
-        }
-
-        float accelSpeed = Math.min(accel * deltaTime * wishSpeed, addSpeed);
-
-        velocity.x += wishDir.x * accelSpeed;
-        velocity.z += wishDir.z * accelSpeed;
-    }
-
-    private void airAccelerate(Vector3f wishDir, float wishSpeed, float accel, float deltaTime) {
-        float wishSpd = Math.min(wishSpeed, SPEED_LIMIT);
-
-        Vector3f horizontalVelocity = new Vector3f(velocity.x, 0, velocity.z);
-        float currentSpeed = horizontalVelocity.dot(wishDir);
-        float addSpeed = wishSpd - currentSpeed;
-
-        if (addSpeed <= 0) {
-            return;
-        }
-
-        float accelSpeed = Math.min(addSpeed, accel * wishSpd * deltaTime);
-
-        velocity.x += wishDir.x * accelSpeed;
-        velocity.z += wishDir.z * accelSpeed;
+    private void landingImpact() {
+        //TODO implement impact events
     }
 
     private void limitVelocity(float speedLimit) {
@@ -221,7 +214,7 @@ public class Player {
     }
 
     public void jump() {
-        if (isGrounded || isCheatFlying) {
+        if (isGrounded) {
             velocity.y = jumpStrength;
             isGrounded = false;
         }

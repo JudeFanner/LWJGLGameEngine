@@ -4,9 +4,16 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -17,13 +24,14 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Engine {
     private long window;
-    private int width = 800;
-    private int height = 600;
+    private int width = 1280;
+    private int height = 720;
 
     private Player player;
     private final float deltaTime = 0.0f;
     private final float lastFrame = 0.0f;
     private MeshHandler meshHandler;
+    private DebugOverlay debugOverlay;
 
     private GLFWErrorCallback errorCallback;
 
@@ -42,6 +50,10 @@ public class Engine {
     private int debugStep = 0;
     private final float DEBUG_DURATION = 2.0f;
     private final float DEBUG_STEP_DURATION = 0.5f;
+
+    private static BufferedImage fontImage;
+    private static final int CHAR_WIDTH = 8;
+    private static final int CHAR_HEIGHT = 12;
 
     private void init() {
         // set up an error callback
@@ -62,7 +74,7 @@ public class Engine {
         GLFWVidMode vidmode = glfwGetVideoMode(monitor);
 
         // spawn a new window
-        window = glfwCreateWindow(800, 600, "lwjgl game", NULL, NULL);
+        window = glfwCreateWindow(width, height, "lwjgl game", NULL, NULL);
         if (window == NULL) {
             throw new RuntimeException("failed to create the glfw window");
         }
@@ -97,19 +109,16 @@ public class Engine {
         // initialize handlers
         shaderHandler = new ShaderHandler();
         player = new Player(new Vector3f(0, 1, 0));
+        player.setPosition(new Vector3f(1.0f, 0, 3f));
         player.setVelocity(new Vector3f(0.1f, 0, 0.1f)); // Set a small initial velocity
 
+        debugOverlay = new DebugOverlay(player, this);
         cameraHandler = new CameraHandler();
         inputHandler = new InputHandler(window, player, cameraHandler);
-
-        //System.out.println("Player position: " + player.getPosition());
-        //System.out.println("Camera position: " + cameraHandler.getCameraPos(player.getPosition()));
 
         meshHandler = new MeshHandler();
         meshHandler.loadMeshes();
         meshHandler.addGroundPlane();
-
-        //System.out.println("number of meshes loaded: " + meshHandler.getMeshCount());
 
         // set up projection matrix
 
@@ -141,6 +150,10 @@ public class Engine {
 
             render();
 
+            if (inputHandler.isDebugMode()) {
+                debugOverlay.render();
+            }
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
@@ -156,9 +169,9 @@ public class Engine {
         int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, false, view.get(new float[16]));
 
-        System.out.println("Player Position: " + player.getPosition());
-        System.out.println("Camera Position: " + cameraHandler.getCameraPos(player.getPosition()));
-        System.out.println("View Matrix: " + view);
+//        System.out.println("Player Position: " + player.getPosition());
+//        System.out.println("Camera Position: " + cameraHandler.getCameraPos(player.getPosition()));
+//        System.out.println("View Matrix: " + view);
 
         // update projection matrix
         updateProjectionMatrix();
@@ -232,6 +245,47 @@ public class Engine {
         }
 
         System.out.println("debug Step: " + debugStep + ", time: " + debugTimer + ", wishDir: " + wishDir);
+    }
+
+    private void loadFontBitmap() {
+        try (InputStream is = Engine.class.getResourceAsStream("/font.png")) {
+            if (is == null) {
+                throw new IOException("Could not find font.png");
+            }
+            fontImage = ImageIO.read(is);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load font bitmap", e);
+        }
+    }
+
+    public static ByteBuffer getFontBitmap(char c) {
+        if (fontImage == null) {
+            throw new RuntimeException("Font bitmap not loaded");
+        }
+
+        int charIndex = (int) c - 32; // Assume space (ASCII 32) is the first character
+        if (charIndex < 0 || charIndex >= 96) { // 96 characters in our font
+            charIndex = 0; // Default to space for unknown characters
+        }
+
+        int row = charIndex / 16;
+        int col = charIndex % 16;
+
+        int x = col * CHAR_WIDTH;
+        int y = row * CHAR_HEIGHT;
+
+        ByteBuffer buffer = BufferUtils.createByteBuffer(CHAR_WIDTH * CHAR_HEIGHT);
+
+        for (int dy = 0; dy < CHAR_HEIGHT; dy++) {
+            for (int dx = 0; dx < CHAR_WIDTH; dx++) {
+                int pixel = fontImage.getRGB(x + dx, y + dy);
+                int alpha = (pixel >> 24) & 0xFF;
+                buffer.put((byte) (alpha > 128 ? 0xFF : 0x00));
+            }
+        }
+
+        buffer.flip();
+        return buffer;
     }
 
     public static void main(String[] args) {

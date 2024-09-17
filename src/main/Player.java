@@ -8,13 +8,13 @@ import java.util.logging.Level;
 public class Player {
     private static final Logger LOGGER = Logger.getLogger(Player.class.getName());
 
-    private static final float DEFAULT_MOVE_SPEED = 7.0f;
+    private static final float DEFAULT_MOVE_SPEED = 5.0f;
     private static final float DEFAULT_SPRINT_SPEED = 7.5f;
-    private static final float DEFAULT_JUMP_STRENGTH = 5.0f;
+    private static final float DEFAULT_JUMP_STRENGTH = 3.5f;
     private static final float DEFAULT_GRAVITY = 9.8f;
-    private static final float DEFAULT_AIR_ACCELERATION = 5.0f;
+    private static final float DEFAULT_AIR_ACCELERATION = 1.0f;
     private static final float DEFAULT_GROUND_ACCELERATION = 10.0f;
-    private static final float DEFAULT_FRICTION = 4.0f;
+    private static final float DEFAULT_FRICTION = 6.0f;
     private static final float CHEAT_FLY_SPEED_MULTIPLIER = 1.5f;
     private static final float SPEED_LIMIT = 20.0f;
     private static final float GROUND_LEVEL = 0f;
@@ -72,7 +72,14 @@ public class Player {
                 new Object[]{position, velocity, isGrounded});
     }
 
+
+    //TODO fix air and ground acceleration differentiation
     private void accelerate(Vector3f wishDir, float wishSpeed, float accel, float deltaTime) {
+        // Apply air speed cap if not grounded
+        if (!isGrounded) {
+            wishSpeed = Math.min(wishSpeed, AIR_SPEED_CAP);
+        }
+
         float currentSpeed = velocity.dot(wishDir);
         float addSpeed = wishSpeed - currentSpeed;
 
@@ -80,7 +87,7 @@ public class Player {
             return;
         }
 
-        float accelSpeed = Math.min(addSpeed, accel * deltaTime);
+        float accelSpeed = Math.min(addSpeed, accel * deltaTime * wishSpeed);
 
         Vector3f accelDir = new Vector3f(wishDir).mul(accelSpeed);
         velocity.add(accelDir);
@@ -262,5 +269,17 @@ public class Player {
 
     public void setSprinting(boolean sprinting) {
         isSprinting = sprinting;
+    }
+
+    public boolean isGrounded() {
+        return isGrounded;
+    }
+
+    public boolean isSprinting() {
+        return  isSprinting;
+    }
+
+    public boolean isCheatFlying() {
+        return isCheatFlying;
     }
 }

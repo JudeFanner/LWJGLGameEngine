@@ -16,7 +16,7 @@ uniform float fogEnd;
 void main()
 {
     // checkerboard pattern
-    float scale = 4.0;
+    float scale = 40.0;
     vec2 checkPos = floor(Normal.yz * scale);
     float pattern = mod(checkPos.x + checkPos.y, 2.0);
 

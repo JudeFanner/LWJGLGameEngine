@@ -9,6 +9,7 @@ public class InputHandler {
     private boolean cursorDisabled = true;
     private Player player;
     private CameraHandler cameraHandler;
+    private boolean debugMode = false;
 
     public InputHandler(long window, Player player, CameraHandler cameraHandler) {
         this.window = window;
@@ -32,6 +33,9 @@ public class InputHandler {
             }
             if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
                 player.jump();
+            }
+            if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
+                debugMode = !debugMode;
             }
         });
     }
@@ -74,5 +78,9 @@ public class InputHandler {
 
     public boolean isCursorDisabled() {
         return cursorDisabled;
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
     }
 }

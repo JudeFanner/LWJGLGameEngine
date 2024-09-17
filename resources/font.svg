@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 48">
+    <!-- Background -->
+    <rect width="128" height="48" fill="black"/>
+
+    <!-- Characters (very basic representation) -->
+    <!-- First row: A-P -->
+    <text x="0" y="8" fill="white" font-family="monospace" font-size="8">ABCDEFGHIJKLMNOP</text>
+
+    <!-- Second row: Q-Z, 0-5 -->
+    <text x="0" y="20" fill="white" font-family="monospace" font-size="8">QRSTUVWXYZ012345</text>
+
+    <!-- Third row: 6-9, symbols -->
+    <text x="0" y="32" fill="white" font-family="monospace" font-size="8">6789:;&lt;=&gt;?@[\]^_`</text>
+
+    <!-- Fourth row: lowercase letters -->
+    <text x="0" y="44" fill="white" font-family="monospace" font-size="8">abcdefghijklmnop</text>
+</svg>

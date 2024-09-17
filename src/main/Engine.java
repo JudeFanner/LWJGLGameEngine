@@ -1,6 +1,5 @@
 package main;
 
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -38,12 +37,17 @@ public class Engine {
     private ShaderHandler shaderHandler;
     private InputHandler inputHandler;
     private CameraHandler cameraHandler;
+    private Skybox skybox;
+    private int skyboxTexture;
 
     Vector3f lightPos = new Vector3f(5.0f, 5.0f, 5.0f);
     Vector3f lightColor = new Vector3f(1.0f, 1.0f, 1.0f);
     Vector3f objectColor = new Vector3f(0.5f, 0.5f, 0.5f);
 
-    Vector4f skyColor = new Vector4f(0.6f, 0.650f, 1.0f, 1.0f);
+
+    Vector4f clearColor = new Vector4f(51/255f, 76/255f, 75/255f, 1.0f);
+    Vector3f fogColor = new Vector3f(0.6f, 0.650f, 1.0f);
+    Vector3f skyColor = new Vector3f(72f/255f, 124f/255f, 229f/255f);
 
     private boolean debugMode = false; // set to true to enable debug mode
     private float debugTimer = 0f;
@@ -51,6 +55,10 @@ public class Engine {
     private final float DEBUG_DURATION = 2.0f;
     private final float DEBUG_STEP_DURATION = 0.5f;
 
+    private Matrix4f projectionMatrix;
+
+    private float fogStart = 6.0f;
+    private float fogEnd = 30.0f;
     private static BufferedImage fontImage;
     private static final int CHAR_WIDTH = 8;
     private static final int CHAR_HEIGHT = 12;
@@ -100,7 +108,7 @@ public class Engine {
         GL.createCapabilities();
 
         // set the clear color
-        glClearColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
+        glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 
         // enable depth testing
         glEnable(GL_DEPTH_TEST);
@@ -120,16 +128,29 @@ public class Engine {
         meshHandler.loadMeshes();
         meshHandler.addGroundPlane();
 
-        // set up projection matrix
+        // Initialize projection matrix
+        float aspectRatio = (float) width / height;
+        projectionMatrix = new Matrix4f().perspective((float) Math.toRadians(45.0f),
+                aspectRatio, 0.1f, 100.0f);
 
-        Matrix4f projection = new Matrix4f().perspective((float) Math.toRadians(45.0f),
-                (float) width / (float) height, 0.1f, 100.0f);
+        // Load skybox texture (you'll need to implement this method)
+        skyboxTexture = loadCubemapTexture(new String[] {
+                "right.jpg", "left.jpg",
+                "top.jpg", "bottom.jpg",
+                "front.jpg", "back.jpg"
+        });
 
-        // upload the projection matrix to the shader
-        int projectionLoc = glGetUniformLocation(shaderHandler.getShaderProgram(), "projection");
-        glUniformMatrix4fv(projectionLoc, false, projection.get(new float[16]));
+        // Create skybox shader program
+        shaderHandler.createSkyboxShaderProgram("skybox_vertex.glsl", "skybox_fragment.glsl");
+
+        // Create skybox
+        skybox = new Skybox(shaderHandler, skyboxTexture);
 
         updateProjectionMatrix();
+    }
+
+    private int loadCubemapTexture(String[] strings) {
+        return 0; //TODO IMPLEMENT
     }
 
     private void loop() {
@@ -162,6 +183,10 @@ public class Engine {
     private void render() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Update projection matrix (if needed)
+        updateProjectionMatrix();
+
+        // Render scene objects
         shaderHandler.useShaderProgram();
         int shaderProgram = shaderHandler.getShaderProgram();
 
@@ -169,22 +194,10 @@ public class Engine {
         int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, false, view.get(new float[16]));
 
-//        System.out.println("Player Position: " + player.getPosition());
-//        System.out.println("Camera Position: " + cameraHandler.getCameraPos(player.getPosition()));
-//        System.out.println("View Matrix: " + view);
-
-        // update projection matrix
-        updateProjectionMatrix();
-
-        // light uniforms setup
+        // Light uniforms setup
         Vector3f lightPos = new Vector3f(5.0f, 5.0f, 5.0f);
         Vector3f lightColor = new Vector3f(1.0f, 1.0f, 1.0f);
         Vector3f objectColor = new Vector3f(1.0f, 0.5f, 0.31f);
-
-        Vector3f fogColor = new Vector3f(skyColor.x, skyColor.y, skyColor.z);
-        float fogStart = 6.0f;
-        float fogEnd = 30.0f;
-
 
         shaderHandler.setLightUniforms(
                 lightPos,
@@ -194,18 +207,25 @@ public class Engine {
         );
         shaderHandler.setFogUniforms(fogColor, fogStart, fogEnd);
 
-        // render meshes
+        // Render meshes
         meshHandler.renderMeshes(shaderHandler);
 
-
+        // Render skybox last
+        glDepthFunc(GL_LEQUAL);
+        shaderHandler.useSkyboxShaderProgram();
+        skybox.setFogColor(fogColor);
+        skybox.setSkyColor(skyColor);
+        skybox.setFogStartEnd(fogStart, fogEnd);
+        skybox.render(cameraHandler.getViewMatrix(player.getPosition()), projectionMatrix);
+        glDepthFunc(GL_LESS);
     }
 
     private void updateProjectionMatrix() {
-        float aspect = (float) width / height;
-        Matrix4f projection = new Matrix4f().perspective((float) Math.toRadians(45.0f),
-                aspect, 0.1f, 100.0f);
+        float aspectRatio = (float) width / height;
+        projectionMatrix.identity().perspective((float) Math.toRadians(45.0f),
+                aspectRatio, 0.1f, 100.0f);
         int projectionLoc = glGetUniformLocation(shaderHandler.getShaderProgram(), "projection");
-        glUniformMatrix4fv(projectionLoc, false, projection.get(new float[16]));
+        glUniformMatrix4fv(projectionLoc, false, projectionMatrix.get(new float[16]));
     }
 
     public void run() {

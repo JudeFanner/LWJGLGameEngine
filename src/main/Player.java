@@ -18,8 +18,8 @@ public class Player {
     private static final float CHEAT_FLY_SPEED_MULTIPLIER = 1.5f;
     private static final float SPEED_LIMIT = 20.0f;
     private static final float GROUND_LEVEL = 0f;
-    private static final float AIR_SPEED_CAP = 30.0f;
-    private static final float STOP_SPEED = 0.4f;
+    private static final float AIR_SPEED_CAP = 320.0f;
+    private static final float STOP_SPEED = 1.3f;
     private static final float MAX_VELOCITY = 50.0f;
     private static final float EPSILON = 0.001f;
 

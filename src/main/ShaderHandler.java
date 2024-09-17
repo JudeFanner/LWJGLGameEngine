@@ -3,9 +3,11 @@ package main;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
 
 import static org.lwjgl.opengl.GL20.*;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -148,8 +150,53 @@ public class ShaderHandler {
         if (location != -1) {
             glUniformMatrix4fv(location, false, value.get(new float[16]));
         } else {
-            throw new IllegalStateException((name + ": Uniform location is " +
-                    "invalid"));
+            throw new IllegalStateException(name + ": Uniform location is invalid");
+        }
+    }
+
+    public void setUniform(String name, Vector3f value) {
+        int location = glGetUniformLocation(shaderProgram, name);
+        if (location != -1) {
+            glUniform3f(location, value.x, value.y, value.z);
+        } else {
+            throw new IllegalStateException(name + ": Uniform location is invalid");
+        }
+    }
+
+    public void setUniform(String name, float value) {
+        int location = glGetUniformLocation(shaderProgram, name);
+        if (location != -1) {
+            glUniform1f(location, value);
+        } else {
+            throw new IllegalStateException(name + ": Uniform location is invalid");
+        }
+    }
+
+    // For the skybox shader program
+    public void setSkyboxUniform(String name, Matrix4f value) {
+        int location = glGetUniformLocation(skyboxShaderProgram, name);
+        if (location != -1) {
+            glUniformMatrix4fv(location, false, value.get(new float[16]));
+        } else {
+            throw new IllegalStateException(name + ": Skybox uniform location is invalid");
+        }
+    }
+
+    public void setSkyboxUniform(String name, Vector3f value) {
+        int location = glGetUniformLocation(skyboxShaderProgram, name);
+        if (location != -1) {
+            glUniform3f(location, value.x, value.y, value.z);
+        } else {
+            throw new IllegalStateException(name + ": Skybox uniform location is invalid");
+        }
+    }
+
+    public void setSkyboxUniform(String name, float value) {
+        int location = glGetUniformLocation(skyboxShaderProgram, name);
+        if (location != -1) {
+            glUniform1f(location, value);
+        } else {
+            throw new IllegalStateException(name + ": Skybox uniform location is invalid");
         }
     }
 
@@ -172,5 +219,33 @@ public class ShaderHandler {
         glUniform1f(glGetUniformLocation(shaderProgram, "fogEnd"), fogEnd);
 
 
+    }
+
+    public void setSkyColor(Vector3f skyColor) {
+        glUniform3f(glGetUniformLocation(shaderProgram, "skyColor"), skyColor.x, skyColor.y, skyColor.z);
+    }
+
+    private int skyboxShaderProgram;
+
+    public void createSkyboxShaderProgram(String vertexShaderPath, String fragmentShaderPath) {
+        skyboxShaderProgram = createShaderProgram();
+
+        int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderPath);
+        int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderPath);
+
+        glAttachShader(skyboxShaderProgram, vertexShader);
+        glAttachShader(skyboxShaderProgram, fragmentShader);
+        glLinkProgram(skyboxShaderProgram);
+
+        if (!checkShaderLinkErrors(skyboxShaderProgram)) {
+            throw new RuntimeException("Skybox shader program linking failed");
+        }
+
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+    }
+
+    public void useSkyboxShaderProgram() {
+        glUseProgram(skyboxShaderProgram);
     }
 }
